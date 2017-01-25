@@ -2,3 +2,8 @@ actions:
 
   - match:
     command: 'spec'
+
+
+  - match:
+      filename: '\.md'
+    command: 'text-run {{filename}}'

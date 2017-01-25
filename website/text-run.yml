@@ -4,6 +4,10 @@ useTempDirectory: true
 
 actions:
 
+  cd:
+    replace:
+      '~/': ''
+
   runConsoleCommand:
     globals:
       exo: '../cli/bin/exo'

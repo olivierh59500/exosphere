@@ -37,10 +37,10 @@ we'll build it using [ExpressJS](http://expressjs.com).
 Exosphere provides a template for building ExpressJS html servers.
 Let's use it:
 
-<a class="runMarkdown_consoleWithInputFromTable">
+<a class="tr_runConsoleCommand">
 ```
-cd ~/todo-app
-exo add service
+$ cd todo-app
+exo add service --templateName=htmlserver-express-es6
 ```
 
 Again, the generator asks for the information it needs interactively.
@@ -56,16 +56,16 @@ Please enter:
     <td>html-server</td>
   </tr>
   <tr>
+    <td>Author</td>
+    <td>test-author</td>
+  </tr>
+  <tr>
     <td>Description</td>
     <td>serves the HTML UI of the Todo app</td>
   </tr>
   <tr>
-    <td>type</td>
-    <td>htmlserver-express-es6</td>
-  </tr>
-  <tr>
-    <td>Initial version</td>
-    <td>(press [Enter] to accept the default value of 0.0.1)</td>
+    <td>Name of the data model</td>
+    <td></td>
   </tr>
 </table>
 
@@ -73,17 +73,18 @@ Please enter:
 
 Now we see the service registered in our application configuration file:
 
-<a class="runMarkdown_verifyFileContent">
-__application.yml__
+<a class="tr_verifyWorkspaceFileContent">
+__todo-app/application.yml__
 
 ```yml
-name: Todo application
+name: todo-app
 description: An example Exosphere application
-version: '0.0.1'
+version: 0.0.1
 
 services:
-  html-server:
-    location: ./html-server
+  public:
+    html-server:
+      location: ./html-server
 ```
 
 </a>
@@ -115,14 +116,13 @@ Here is the current architecture of our application:
 ## The html service folder
 
 The html service is located in a subdirectory of the application,
-in `~/todo-app/html-server/`.
+in <a class="tr_verifyWorkspaceContainsDirectory">`todo-app/html-server/`</a>.
 This makes sense because it is an integral part of our application,
 and doesn't make sense outside of it.
 
 Most of the files in this folder
 are just a normal [ExpressJS](http://expressjs.com) application,
 plus some extra tools like linters.
-
 Let's check out how the service looks like internally.
 
 
@@ -130,39 +130,41 @@ Let's check out how the service looks like internally.
 
 This file tells the Exosphere framework everything it needs to know about this service.
 
-__~/todo-app/html-server/service.yml__
+<a class="tr_verifyWorkspaceFileContent">
+__todo-app/html-server/service.yml__
 
 ```yml
-name: Todo html server
-description: serves the html UI of the Todo app
+type: html-server
+description: serves the HTML UI of the Todo app
+author: test-author
 
-setup: npm install --loglevel error --depth 0
+# defines the commands to make the service runnable:
+# install its dependencies, compile it, etc.
+setup: yarn install
+
+# defines how to boot up the service
 startup:
-  command: node app
-  online-text: html server listening on port
 
+  # the command to boot up the service
+  command: node app
+
+  # the string to look for in the terminal output
+  # to determine when the service is fully started
+  online-text: HTML server is running
+
+# the messages that this service will send and receive
 messages:
   sends:
   receives:
+
+# other services this service needs to run,
+# e.g. databases
+dependencies:
+
+docker:
+  publish:
 ```
-
-This file tells the Exosphere framework about this service.
-* The service __name__ and a __description__
-* The __setup__ section defines the commands to make the service runnable on the machine,
-  i.e. install its dependencies, compile it, etc.
-* The __startup__ section defines how to boot up the service.
-  * the __command__ section contains the command to run
-  * the __online-text__ section contains the string to look for in the terminal output
-    to determine when the service has successfully started up.
-    The Exosphere runtime only sends traffic to fully available instances.
-* The __messages__ section lists all the messages that this service will send and receive.
-  The Exosphere runtime needs this information
-  in order to automatically subscribe the service to these messages.
-  Currently our application doesn't contain any other services
-  that could be communicated with,
-  so this section is empty for now.
-  We'll add some commands here soon!
-
+</a>
 
 The other files in this directory are just a normal
 [ExpressJS](http://expressjs.com)
@@ -176,9 +178,12 @@ the Exosphere CLI has all the information to set up our application.
 Let's check that the overall configuration is correct,
 and have Exosphere set up the service for us:
 
+<a class="tr_runConsoleCommand">
 ```
+$ cd todo-app
 $ exo setup
 ```
+</a>
 
 We see how it uses Node's package management system (NPM)
 to download and install
@@ -186,40 +191,44 @@ the external [ExpressJS](http://expressjs.com) and [Pug](http://jade-lang.com/) 
 so that the service is ready to run.
 The output should look something like:
 
+<a class="tr_verifyRunConsoleCommandOutput">
 ```
-Setting up Todo application 0.0.1
-
-  exo-setup  starting setup of 'html-server'
-html-server  /Users/kevin/exosphere-sdk/tutorial/part_2/code_02/todo-app/html-server
-├── express@4.13.4
-└── jade@1.11.0
-html-server  PROCESS ENDED
-html-server  EXIT CODE: 0
-  exo-setup  setup of 'html-server' finished
+Setting up todo-app 0.0.1
+html-server  starting setup
+html-server  setup finished
+html-server  preparing Docker image
+html-server  Docker setup finished
   exo-setup  setup complete
 ```
+</a>
 
 
 ## Booting up the application
 
 To test that everything works, let's check that the application boots up:
 
+<a class="tr_startConsoleCommand">
 ```
+$ cd todo-app
 $ exo run
 ```
+</a>
 
-You should see output like:
+It prints this output:
 
+<a class="tr_waitForOutput">
 ```
-Running Todo application 0.0.1
+Running todo-app 0.0.1
 
- exocom      online at port 8000
-html-server  Server running at port 3000
- exorun      'html-server' is running using exorelay port 8001
- exorun      all services online
- exocom      received routing setup
- exorun      application ready
+exocom  Exosphere Development Communications server
+exocom  Ctrl-C to stop
+html-server  ExoRelay for 'html-server' online
+html-server  HTML server online
+html-server  HTML server is running
+exo-run  'html-server' is running
+exo-run  all services online
 ```
+</a>
 
 The Exosphere framework itself is written as a bunch of loosely coupled services.
 We see a number of them in action here:

@@ -46,7 +46,7 @@ We enter into the wizard:
 </table>
 
 The Exosphere CLI now adds the new service to the
-[application configuration](03_app_config.md):
+[application configuration](../part_2a/02_app_config.md):
 
 __~/todo-app/application.yml__
 

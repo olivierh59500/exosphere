@@ -1,5 +1,5 @@
-before-all: 'exosphere-shared'
-after-all: ""
+before-all: "exosphere-shared"
+after-all: "website"
 always: ""
 never: "documentation"
 color: true
