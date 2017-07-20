@@ -8,12 +8,12 @@ Exosphere helps work on cloud applications.
 It automates the repetitive activities
 to get them built, running, tested, and deployed.
 
-- [exo run](documentation/commands/run.md)
+- [exo run](exo-run)
   prepares the application to run (by installing dependencies and compiling it)
   and boots it up
-- [exo test](documentation/commands/test.md)
+- [exo test](exo-test)
   runs the tests for all services as well as for the application
-- [exo deploy](documentation/commands/)
+- [exo deploy](exo-deploy)
   pushes the application to public or private clouds
 - [exo add](documentation/commands/add.md)
   scaffolds a new service based on application-specific templates
