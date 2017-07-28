@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+
+bin/lint
+bin/build
+bin/unit-test
+bin/feature-test

@@ -1,6 +1,8 @@
 process.env.NODE_ENV = 'test'
-const {MongoClient} = require('mongodb'),
-      N = require('nitroglycerin')
+const defineSupportCode = require('cucumber').defineSupportCode,
+      {MongoClient} = require('mongodb'),
+      N = require('nitroglycerin'),
+      World = require('./world')
 
 
 var db = null
@@ -13,31 +15,37 @@ const getDb = (done) => {
 }
 
 
-module.exports = function() {
+defineSupportCode(function({Before, After, setDefaultTimeout, setWorldConstructor, registerHandler}) {
 
-  this.setDefaultTimeout(1000)
+  setDefaultTimeout(1000)
+  setWorldConstructor(World)
 
 
-  this.Before( function(_scenario, done) {
+  Before( function(_scenario, done) {
     getDb( (db) => {
-      db.collection('_____modelName_____s').drop()
-      done()
+      db.collection('_____modelName_____s').drop(function(err) {
+        // ignore errors here, since we are only cleaning up the test database
+        // and it might not even exist
+        done()
+      })
     })
   })
 
 
-  this.After(function() {
+  After(function() {
     this.exocom && this.exocom.close()
     this.process && this.process.close()
   })
 
 
-  this.registerHandler('AfterFeatures', (_event, done) => {
+  registerHandler('AfterFeatures', (_event, done) => {
     getDb( (db) => {
       db.collection('_____modelName_____s').drop()
-      db.close()
-      done()
+      db.close(function(err, result){
+        if (err) { throw new Error(err) }
+        done()
+      })
     })
   })
 
-}
+});

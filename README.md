@@ -2,43 +2,37 @@
 
 [![Build Status](https://travis-ci.org/Originate/exosphere.svg?branch=master)](https://travis-ci.org/Originate/exosphere)
 
-> _ex·o·sphere (ˈeksōˌsfir) - the outermost region of a planet's atmosphere (aka, above the clouds)_
+_yak shaver for cloud developers_
 
-__Exosphere makes micro-services easy and fun__
+Exosphere helps work on cloud applications.
+It automates the repetitive activities
+to get them installed, built, running, tested, and deployed:
 
-Exosphere is a high-level framework
-for building, testing, deploying, and operating
-a wide variety of micro-service application ecosystems
-with unparalleled devops productivity and joy.
+- [exo run](documentation/commands/run.md)
+  runs an Exosphere application on the local machine
+- [exo test](documentation/commands/test.md)
+  runs all the tests for an application
+- [exo deploy](documentation/commands/deploy.md)
+  pushes the application to public or private clouds
+- [exo add](documentation/commands/add.md)
+  scaffolds a new service based on application-specific templates
 
-- scaffold, run, test, deploy, operate, and evolve fleets of polyglot micro-services
-  without boilerplate code and process
-- develop against explicit
-  functional, performance, security, and reliability requirements<sup>&#42;</sup>
-- data-center aware, runs on top of public and private cloud environments
-  like [AWS](https://aws.amazon.com),
-  [Google Cloud](https://cloud.google.com),
-  [Azure](https://azure.microsoft.com),
-  [DCOS](https://dcos.io), etc<sup>&#42;</sup>
-- marketplace for reusable services<sup>&#42;</sup>
+To configure Exosphere you can use these utility commands:
+- [exo template](documentation/commands/template.md)
+  manages templates for services
 
 
-__Get Started:__
-* [install the SDK](website/tutorial/part_1/03_installation.md)
+#### Learn more
+* [why Exosphere](documentation/benefits.md)
+* which [open source](documentation/open-source.md) technologies Exosphere is built on top of
+* the [configuration files](website/config_files)
+
+
+#### Get started
+* [install](website/tutorial/part_1/03_installation.md) it
 * [download and run an example application](website/example-apps.md)
 * build your own application by following the [tutorial](website/tutorial)
 
 
-__Reference:__
-* the [scaffolding commands](website/scaffolding.md)
+#### Get involved
 * [platform developer documentation](website/developers/developers.md)
-
-
-__Further Reading:__
-* related projects: [LeverOS](https://github.com/leveros/leveros)
-
-
-<hr>
-
-<sup>&#42;</sup>
-coming soon

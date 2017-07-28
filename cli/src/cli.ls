@@ -1,46 +1,55 @@
 require! {
   'abbrev'
   'chalk' : {red}
-  '../../exo-add' : add
-  '../../exo-clone' : clone
-  '../../exo-create' : create
-  '../../exo-deploy' : deploy
-  '../../exo-lint' : lint
-  '../../exo-run' : run
-  '../../exo-setup' : setup
-  '../../exo-sync' : sync
-  '../../exo-test' : test
+  'cross-spawn': spawn
   'fs'
+  'marked'
+  'marked-terminal': TerminalRenderer
   'prelude-ls' : {map}
-  '../package.json' : pkg
+  '../../package.json' : pkg
   'path'
   'update-notifier'
 }
 
 update-notifier({pkg}).notify!
+marked.set-options renderer: new TerminalRenderer!
 
 commands = do
-  add: add
-  clone: clone
-  create: create
-  deploy: deploy
-  lint: lint
-  run: run
-  setup: setup
-  sync: sync
-  test: test
+  add: "../../exo-add"
+  clean: "../../exo-clean"
+  create: "../../exo-create"
+  deploy: "../../exo-deploy"
+  lint: "../../exo-lint"
+  run: "../../exo-run"
+  sync: "../../exo-sync"
+  "template": "../../exo-template"
+  test: "../../exo-test"
+
+go-commands = ['add', 'clean', 'create', 'run', 'template']
+
+command-name = process.argv[2]
+
+if command-name is \version
+  return console.log "Exosphere version #{pkg.version}"
+if command-name is \help
+  process.argv.shift!
+  return print-usage! unless process.argv[2]
+  process.argv.push "help"
 
 command-name = process.argv[2]
 full-command-name = complete-command-name command-name
-if command-name is \version
-  console.log "Exosphere version #{pkg.version}"
-else if not command-name
+
+if not command-name
   missing-command!
 else if not full-command-name
   unknown-command command-name
+else if full-command-name in go-commands
+  args = [full-command-name].concat process.argv.slice(3)
+  {error} = spawn.sync get-go-binary-path!, args, stdio: 'inherit'
+  throw error if error
 else
   process.argv.shift!
-  commands[full-command-name]!
+  (require commands[full-command-name])!
 
 
 function complete-command-name command-name
@@ -59,15 +68,41 @@ function unknown-command command
 
 
 function print-usage
-  console.log 'Usage: exo <command> [options]\n'
-  console.log 'Available commands are:'
-  for command in command-names!
-    if command is 'add'
-      console.log "* add [<service-role>] [<template-name>] [<model-name>] [<description>]"
-    else
-      console.log "* #{command}"
-  console.log!
+  usage-text = """
+  **Usage: exo <command> [options]**
+
+  Available commands are:
+    * add             Add a service to an existing application
+    * clean           Remove dangling Docker images and volumes
+    * create          Create a new application or stand-alone service
+    * deploy          Deploy an application to the cloud
+    * lint            Verify the correctness of an application
+    * run             Run an application locally
+    * sync            Download updates for an application from its Git repository
+    * template        Manage remote service templates
+    * test            Run the tests for an application or service
+
+  Use "exo <command> help" or "exo help <command>" for more information about a specific command.
+  """
+  console.log marked usage-text
 
 
 function command-names
   Object.keys commands
+
+function get-go-binary-os
+  switch process.platform
+    | 'darwin'  => 'darwin'
+    | 'linux'   => 'linux'
+    | 'win32'   => 'windows'
+    | otherwise => throw new Error('Unsupported operating system. Please open an issue with your operating system and system architecture.')
+
+function get-go-binary-architecture
+  switch process.arch
+    | 'arm'     => 'arm'
+    | 'i32'     => '386'
+    | 'x64'     => 'amd64'
+    | otherwise => throw new Error('Unsupported system architecture system. Please open an issue with your operating system and system architecture.')
+
+function get-go-binary-path
+  path.join __dirname, '..', '..', 'go-binaries', "exo-#{get-go-binary-os!}-#{get-go-binary-architecture!}"

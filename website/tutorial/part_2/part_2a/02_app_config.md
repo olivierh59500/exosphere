@@ -13,6 +13,7 @@ Since all the action within an application happens in the services,
 an Exosphere application itself is not much more than
 a configuration file that defines all the
 services that make up the application.
+We call this _composite applications_.
 
 Here is the configuration file created for our Todo application:
 
@@ -26,6 +27,7 @@ version: 0.0.1
 services:
   public:
 ```
+
 </a>
 
 It defines the name, a description, and a version of the application.

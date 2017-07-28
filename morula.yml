@@ -1,5 +1,12 @@
-before-all: "exosphere-shared"
+before-all:
+  - exosphere-shared
+  - exo-go
 after-all: "website"
 always: ""
-never: "documentation"
+never:
+  - bin
+  - documentation
+  - go-binaries
+  - node_modules
+  - vendor
 color: true

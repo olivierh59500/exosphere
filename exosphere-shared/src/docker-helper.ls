@@ -1,62 +1,108 @@
 require! {
-  \child_process
+  'async'
+  \prelude-ls : {any, head, map}
+  'dockerode' : Docker
+  'stream'
+  'text-stream-accumulator' : TextStreamAccumulator
+  'text-stream-search' : TextStreamSearch
 }
 
+docker = new Docker
 
+# Helper class used to manage Docker processes not started by docker-compose
 class DockerHelper
 
-  @container-exists = (container) ->
-    child_process.exec-sync('docker ps -a --format {{.Names}}') |> (.to-string!) |> (.split '\n') |> (.includes container)
+  @start-container = ({Image, name, HostConfig, online-text}, done) ->
+    DockerHelper.list-running-containers (err, running-containers) ->
+      | err                              => done err
+      | running-containers.includes name => done!
+      | otherwise                        =>
+        docker.create-container {Image, name, HostConfig}, (err, container) ->
+          | err => done err
+          container.attach {stream: true, stdout: true, stederr: true}, (err, stream) ->
+            text-stream-search = new TextStreamSearch stream
+            container.start (err) ->
+              | err => done err
+              text-stream-search.wait online-text, done
 
 
-  @container-is-running = (container-name) ->
-    child_process.exec-sync('docker ps --format {{.Names}}/{{.Status}}') |> (.to-string!) |> (.split '\n') |> (.includes "#{container-name}/Up")
+  @remove-container = ({name}, done) ->
+    docker.list-containers {name}, (err, containers) ->
+      | err       => done err
+      | otherwise => DockerHelper._force-remove-containers containers, done
 
 
-  @ensure-container-is-running = (container-name, image) ->
-    | @container-is-running container-name  =>  return
-    | @container-exists container-name      =>  @start-container container-name
-    | otherwise                             =>  @run-image container-name, image
+  @remove-containers = (done) ->
+    docker.list-containers (err, containers) ->
+      | err                => done err
+      | !containers.length => done!
+      | otherwise          => DockerHelper._force-remove-containers containers, done
 
 
-  @get-build-command = (image, build-flags) ->
-    return "docker build -t #{image.author}/#{image.name} #{if build-flags then build-flags else ""} ."
+  @list-running-containers = (done) ->
+    docker.list-containers (err, containers) ->
+      | err       => done err
+      | otherwise =>
+        # Names field is printed like: Names: [ '/exocom' ]
+        done null, map((.Names?[0] |> (.replace '/', '')), containers)
 
 
-  @get-config = (image) ->
-    child_process.exec-sync("docker run --rm=true #{image} cat service.yml", 'utf8') |> (.to-string!)
+  @list-images = (done) ->
+    docker.list-images (err, images) ->
+      | err       => done err
+      | otherwise =>
+        # Image name is printed like: RepoTags: [ 'exocom:latest' ]
+        done null, map((.RepoTags |> head |> (.split ':') |> head), images)
 
 
-  @get-docker-ip = (container) ->
-    child_process.exec-sync("docker inspect --format '{{ .NetworkSettings.IPAddress }}' #{container}", "utf8") if @container-exists container
+  @pull-image = ({image}, done) ->
+    docker.pull image, (err, stream) ->
+      console.log "Downloading docker image for '#{image}'..."
+      docker.modem.follow-progress stream, (err, output) ->
+        | err       => done err
+        | otherwise => console.log "'#{image}' download complete"; done!
 
 
-  @get-docker-images = ->
-    child_process.exec-sync 'docker images'
+  # Runs cat on file in Docker container to print its content
+  @cat-file = ({image, file-name}, done) ->
+    DockerHelper.pull-image {image}, (err) ->
+      | err       => done err
+      | otherwise =>
+        stdout-stream = new stream.PassThrough
+        text-stream-search = new TextStreamAccumulator stdout-stream
+        docker.run image, ['cat', file-name], stdout-stream, (err, data, container) ->
+          | err       => done err
+          | otherwise => done null, text-stream-search.to-string!
 
 
-  @get-pull-command = (image) ->
-    return "docker pull #{image.author}/#{image.name}#{if image.version then ":#{image.version}" else ""}"
+  @pull-image = ({image}, done) ->
+    docker.pull image, (err, stream) ->
+      console.log "Downloading docker image for '#{image}'..."
+      docker.modem.follow-progress stream, (err, output) ->
+        | err       => done err
+        | otherwise => console.log "'#{image}' download complete"; done!
 
 
-  @remove-container = (container) ->
-    child_process.exec-sync "docker rm -f #{container}" if @container-exists container
+  @get-dangling-images = (done) ->
+    docker.list-images {"filters": '{"dangling": ["true"]}'}, done
 
 
-  @run-image = (container, image) ->
-    if container is \test-mongo
-      child_process.exec-sync "docker run -d --name=#{container} -p 27017:27017 #{image}"
-    else
-      child_process.exec-sync "docker run -d --name=#{container} #{image}"
+  @force-remove-images = (images, done) ->
+    async.map-series images, (-> docker.get-image(&0.Id).remove {force:true}, &1), done
 
 
-  @start-container = (container-name) ->
-    child_process.exec-sync("docker start #{container-name}") if @container-exists container-name
+  @get-dangling-volumes = (done) ->
+    docker.list-volumes {"filters": '{"dangling": ["true"]}'}, (err, volumes) ->
+      | err       => done err
+      | otherwise => done null, (volumes.Volumes or [])
 
 
-  @image-exists = (image) ->
-    child_process.exec-sync("docker images #{image.author}/#{image.name}#{if image.version then ":#{image.version}" else ""}", "utf-8") |> (.includes "#{image.author}/#{image.name}")
+  @force-remove-volumes = (volumes, done) ->
+    async.map-series volumes, (-> docker.get-volume(&0.Name).remove {force:true}, &1), done
 
+
+  @_force-remove-containers = (containers, done) ->
+    async.map-series containers, (-> docker.get-container(&0.Id).remove {force:true}, &1), done
 
 
 module.exports = DockerHelper

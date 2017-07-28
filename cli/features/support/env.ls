@@ -1,15 +1,25 @@
 require! {
-  '../../../exosphere-shared' : {kill-child-processes}
+  'cucumber': {defineSupportCode}
+  './world': World
+  'child_process'
+  '../../../exosphere-shared' : {kill-child-processes, DockerHelper}
   'fs-extra' : fs
 }
 
 
-module.exports = ->
+defineSupportCode ({After, set-default-timeout, set-world-constructor}) ->
 
-  @set-default-timeout 2000
+  set-default-timeout 5000
+  set-world-constructor World
 
 
-  @After tags: ['~@e2e'], (scenario, done) ->
+  After tags: 'not @e2e', (scenario, done) ->
     if @app-dir
       fs.remove-sync @app-dir
-    kill-child-processes done
+    kill-child-processes ->
+      DockerHelper.remove-containers done
+
+
+  #stop and remove all running docker containers
+  After tags: 'not @docker-cleanup', timeout: 20_000, (scenario, done) ->
+    DockerHelper.remove-containers done

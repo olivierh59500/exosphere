@@ -1,3 +1,4 @@
+@docker-cleanup
 Feature: wrong command
 
   As an Exosphere user accidentally running the "exo" program without correct arguments
@@ -12,4 +13,9 @@ Feature: wrong command
 
   Scenario: the user enters an unknown command
     When running "exo zonk" in the terminal
+    Then it prints "Error: unknown command 'zonk'" in the terminal
+
+
+  Scenario: the user tries to view the help screen for an unkown command
+    When running "exo help zonk" in the terminal
     Then it prints "Error: unknown command 'zonk'" in the terminal
