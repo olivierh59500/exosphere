@@ -28,7 +28,7 @@ we will go through each command in this tutorial.
 Okay, let's get started!
 Open a terminal, and run these two commands:
 
-<a class="tutorialRunner_runConsoleCommand">
+<a class="tr_runConsoleCommand">
 ```
 exo create application
 ```
@@ -57,12 +57,15 @@ Please enter:
 
 </a>
 
-The generator creates a folder `~/todo-app` for us.
+In the last step, just press Enter to accept the default value.
+The generator creates a folder
+<a class="tr_verifyWorkspaceContainsDirectory">`todo-app`</a>
+for us.
 We will look at it in a minute.
 First, the takeaway of this chapter:
 
 > The Exosphere framework provides a powerful command-line application
-> that allows you to work on and operate Exosphere applications.
+> that allows you to work on Exosphere applications.
 
 Now, let's take a closer look at the generated code.
 

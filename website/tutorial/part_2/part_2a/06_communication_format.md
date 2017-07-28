@@ -134,6 +134,7 @@ where a larger result is sent in a series of chunks:
 As an example, here is how a large file is read in chunks using
 [ExoRelay.JS](https://github.com/Originate/exorelay-js):
 
+<a class="tr_validateJavascript">
 ```javascript
 exoRelay.send('file.read', {path: 'large.csv'}, (payload, {outcome}) => {
   switch(outcome) {
@@ -148,6 +149,7 @@ exoRelay.send('file.read', {path: 'large.csv'}, (payload, {outcome}) => {
   }
 }
 ```
+</a>
 
 Another use case for streaming replies is making longer-running commands responsive.
 Let's say we have a "blob" service that stores large files.

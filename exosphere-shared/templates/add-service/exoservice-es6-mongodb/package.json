@@ -21,7 +21,6 @@
     "lowercase-keys": "1.0.0",
     "nitroglycerin": "1.1.2",
     "o-tools": "0.7.0",
-    "port-reservation": "0.3.2",
-    "wait": "0.1.0"
+    "port-reservation": "0.3.2"
   }
 }

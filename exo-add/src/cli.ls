@@ -72,7 +72,7 @@ function parse-command-line command-line-args
     data.service-role = service-role
   else
     questions.push do
-      message: 'Name of the service to create:'
+      message: 'Name of the service to add:'
       type: 'input'
       name: 'serviceRole'
       filter: (input) -> input.trim!

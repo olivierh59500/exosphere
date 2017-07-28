@@ -91,7 +91,7 @@ and communicate only via well-defined, wholistically type-checked APIs.
 
 ## Translating messages
 
-In the [documentation for the search service]()
+In the documentation for the search service
 we see that it expects amongst other things
 the command `fts.add` to add data to the search engine
 and `fts.search` to perform a search.

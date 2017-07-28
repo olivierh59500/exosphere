@@ -12,7 +12,7 @@
 To build a service,
 we could whip together another quick [ExpressJS](https://expressjs.com) stack
 and use an [ExoRelay](https://github.com/Originate/exorelay-js) inside it,
-as we did in the [web server service](02_web_server.md).
+as we did in the [html server service](04_html_server.md).
 But for a small micro-service a full web server stack
 based on the MVC paradigm would be overkill:
 * we don't need a sophisticated _routing_ layer,

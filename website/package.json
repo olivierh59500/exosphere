@@ -5,7 +5,7 @@
   "devDependencies": {
     "o-tools": "0.7.0",
     "livescript": "1.5.0",
-    "tutorial-runner": "0.0.20"
+    "text-runner": "0.1.23"
   },
   "license": "ISC"
 }

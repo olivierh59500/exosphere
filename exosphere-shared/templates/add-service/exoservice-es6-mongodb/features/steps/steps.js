@@ -6,8 +6,7 @@ const {expect} = require('chai'),
       lowercaseKeys = require('lowercase-keys'),
       N = require('nitroglycerin'),
       portReservation = require('port-reservation'),
-      request = require('request'),
-      wait = require('wait')
+      request = require('request')
 
 
 module.exports = function() {
@@ -22,11 +21,16 @@ module.exports = function() {
 
 
   this.Given(/^an instance of this service$/, function(done) {
-    this.process = new ExoService({ role: '_____serviceRole_____',
+    console.log('connecting to exocom port', this.exocomPort)
+    this.process = new ExoService({ serviceRole: '_____serviceRole_____',
                                     exocomHost: 'localhost',
                                     exocomPort: this.exocomPort})
     this.process.connect()
-    this.process.on('online', () => wait.wait(10, done))
+    this.process.on('online', () => {
+      console.log('connected')
+      console.log(this.exocom.serviceSockets)
+      setTimeout(done, 10)
+    })
   })
 
 

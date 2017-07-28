@@ -16,7 +16,7 @@ services that make up the application.
 
 Here is the configuration file created for our Todo application:
 
-<a class="tutorialRunner_verifyFileContent">
+<a class="tr_verifyWorkspaceFileContent">
 __todo-app/application.yml__
 ```yml
 name: todo-app
@@ -24,6 +24,7 @@ description: An example Exosphere application
 version: 0.0.1
 
 services:
+  public:
 ```
 </a>
 
