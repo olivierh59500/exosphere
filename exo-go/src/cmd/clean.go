@@ -39,12 +39,12 @@ var cleanCmd = &cobra.Command{
 			fmt.Println("Completed, no docker images to remove...")
 		}
 		for serviceName := range dockerCompose.Services {
-			_, err = c.ImageRemove(context.Background(), serviceName, options)
+			_, err = c.ContainerRemove(context.Background(), serviceName, options)
 			if err != nil {
 				panic(err)
 			}
 		}
-		fmt.Println("removed all exosphere related images")
+		fmt.Println("removed all exosphere related containers")
 		_, err = c.ImagesPrune(context.Background(), filters.NewArgs())
 		if err != nil {
 			panic(err)
